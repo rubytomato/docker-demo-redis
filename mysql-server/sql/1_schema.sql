@@ -1,0 +1,18 @@
+CREATE DATABASE sample_db DEFAULT CHARACTER SET = utf8mb4;
+
+CREATE USER 'test_user'@'%' IDENTIFIED BY 'test_user' PASSWORD EXPIRE NEVER;
+
+GRANT ALL ON sample_db.* TO 'test_user'@'%';
+
+USE sample_db;
+
+CREATE TABLE IF NOT EXISTS memo (
+   id BIGINT AUTO_INCREMENT,
+   title VARCHAR(255) NOT NULL,
+   description TEXT NOT NULL,
+   done BOOLEAN DEFAULT FALSE NOT NULL,
+   updated TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP(3) NOT NULL,
+   PRIMARY KEY (id)
+)
+CHARACTER SET = utf8mb4,
+COLLATE utf8mb4_general_ci;

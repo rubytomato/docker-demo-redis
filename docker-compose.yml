@@ -1,0 +1,64 @@
+version: "3.6"
+services:
+
+  mysql-server:
+    container_name: mysql-server
+    build:
+      context: ./mysql-server
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      TZ: Asia/Tokyo
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - 3306:3306
+    networks:
+    - redis-network
+    restart: always
+    tty: true
+
+  redis-server:
+    container_name: redis-server
+    build:
+      context: ./redis-server
+    environment:
+      TZ: Asia/Tokyo
+    volumes:
+      - redis-data:/data
+    ports:
+      - 6379:6379
+    networks:
+      - redis-network
+    restart: always
+    tty: true
+
+  app-server:
+    container_name: app-server
+    build:
+      context: ./app-server
+    environment:
+      TZ: Asia/Tokyo
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_OPTS: "-Xmx512m -Xms512m -XX:MaxMetaspaceSize=256m -verbose:gc -Xloggc:app-gc.log"
+    volumes:
+      - ./demo-redis-spring/target:/var/target
+    depends_on:
+      - mysql-server
+      - redis-server
+    ports:
+      - 9000:9000
+    networks:
+      - redis-network
+    restart: always
+    stdin_open: true
+    tty: true
+
+networks:
+  redis-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local

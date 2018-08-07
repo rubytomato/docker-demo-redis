@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: demo
+  output:
+    ansi:
+      enabled: detect
+  profiles:
+    active: dev
+  jackson:
+    serialization:
+      indent-output: true
+      write-dates-as-timestamps: false
+      write-durations-as-timestamps: true
+  thymeleaf:
+    enabled: true
+    encoding: UTF-8
+    enable-spring-el-compiler: true
+    mode: html
+  redis:
+    host: localhost
+    port: 6379
+    ssl: false
+    database: 0
+    password: foobared
+
+# Server
+server:
+  port: 9000
+
+# Logging
+logging.file: log/demo.log
+logging:
+  file:
+    max-history: 10
+    max-size: 50MB
+  level:
+    root: info
+    org.springframework: info
+    org.thymeleaf: debug
+    com.example.demo: debug
+
+---
+
+spring:
+  profiles: docker
+  redis:
+    host: redis-server
+    port: 6379
+    ssl: false
+    database: 0
+    password: foobared
+logging.file: demo.log

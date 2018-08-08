@@ -1,5 +1,5 @@
 #!/bin/bash
 
-set -x
+set -ex
 
-java -jar /var/target/demo.jar
+java -Xmx512m -Xms512m -XX:MaxMetaspaceSize=256m -verbose:gc -Xloggc:app-gc.log -jar /var/target/demo.jar

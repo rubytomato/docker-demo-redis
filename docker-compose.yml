@@ -13,7 +13,7 @@ services:
     ports:
       - 3306:3306
     networks:
-    - redis-network
+      - redis-network
     restart: always
     tty: true
 
@@ -39,7 +39,6 @@ services:
     environment:
       TZ: Asia/Tokyo
       SPRING_PROFILES_ACTIVE: docker
-      JAVA_OPTS: "-Xmx512m -Xms512m -XX:MaxMetaspaceSize=256m -verbose:gc -Xloggc:app-gc.log"
     volumes:
       - ./demo-redis-spring/target:/var/target
     depends_on:

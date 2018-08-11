@@ -33,3 +33,4 @@ EXPOSE 9000
 
 # ENTRYPOINT [ "/bin/bash" ]
 # CMD ["/bin/bash"]
+# CMD [ "./start.sh" ]

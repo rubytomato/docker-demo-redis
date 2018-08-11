@@ -129,11 +129,15 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 
 ### up
 
+all service start up.
+
 ```text
 > docker-compose up -d
 ```
 
 #### mysql-server
+
+just mysql-server start up.
 
 ```text
 > docker-compose up -d mysql-server
@@ -141,11 +145,15 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 
 #### redis-server
 
+just redis-server start up.
+
 ```text
 > docker-compose up -d redis-server
 ```
 
-#### application
+#### app-server
+
+just app-server start up.
 
 ```text
 > docker-compose up -d app-server
@@ -169,7 +177,7 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 > docker-compose down
 ```
 
-### exec
+### execute any commands
 
 #### mysql-server
 
@@ -179,13 +187,13 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 > docker-compose exec mysql-server bash --login
 ```
 
-**mysql**
+**mysql cli**
 
 ```text
 > docker-compose exec mysql-server mysql -u root -p
 ```
 
-**mysql**
+**mysql cli**
 
 ```text
 > docker-compose exec mysql-server mysql -u test_user -p --database=sample_db
@@ -213,17 +221,109 @@ BUG_REPORT_URL="https://bugs.debian.org/"
 > docker-compose exec app-server bash --login
 ```
 
+application start
+
 ```text
 $ ./start.sh
 ```
 
 
-##### application
+##### access web page
 
 index
 
 ```text
 http://localhost:9000/
+```
+
+### app-server scale
+
+modified docker-compose.yml
+
+before
+
+```text
+  app-server:
+    ports:
+      - 9000:9000
+```
+
+after changed
+
+```text
+  app-server:
+    ports:
+      - 9000-9001:9000
+```
+
+launch 2 app-servers
+
+```text
+> docker-compose up -d --scale app-server=2
+Creating network "docker-demo-redis_redis-network" with driver "bridge"
+Creating mysql-server ... done
+Creating redis-server ... done
+WARNING: The "app-server" service specifies a port on the host. If multiple containers for this service are created on a single host, the port will clash.
+Creating docker-demo-redis_app-server_1 ... done
+Creating docker-demo-redis_app-server_2 ... done
+```
+
+access to #1 app-server
+
+```text
+> docker-compose exec --index=1 app-server bash --login
+```
+
+check the port used by #1 app-server
+
+```text
+> docker-compose port --index=1 app-server 9000
+0.0.0.0:9000
+```
+
+access to #2 app-server
+
+```text
+> docker-compose exec --index=2 app-server bash --login
+```
+
+check the port used by #2 app-server
+
+```text
+> docker-compose port --index=2 app-server 9000
+0.0.0.0:9001
+```
+
+#### MySQL
+
+* Process ids #8,#9 connected from #1 app-server
+* Process ids #10,#11 connected from #2 app-server
+
+```text
+root@localhost [(none)] > show processlist;
++----+-----------------+------------------+-----------+---------+------+------------------------+------------------+
+| Id | User            | Host             | db        | Command | Time | State                  | Info             |
++----+-----------------+------------------+-----------+---------+------+------------------------+------------------+
+|  4 | event_scheduler | localhost        | NULL      | Daemon  |  843 | Waiting on empty queue | NULL             |
+|  8 | test_user       | 172.22.0.4:48354 | sample_db | Sleep   |  674 |                        | NULL             |
+|  9 | test_user       | 172.22.0.4:48356 | sample_db | Sleep   |  676 |                        | NULL             |
+| 10 | test_user       | 172.22.0.5:40842 | sample_db | Sleep   |  263 |                        | NULL             |
+| 11 | test_user       | 172.22.0.5:40844 | sample_db | Sleep   |  265 |                        | NULL             |
+| 13 | root            | localhost        | NULL      | Query   |    0 | starting               | show processlist |
++----+-----------------+------------------+-----------+---------+------+------------------------+------------------+
+6 rows in set (0.00 sec)
+```
+
+#### Redis
+
+* client id #3 connected from #2 app-server
+* client id #4 connected from #2 app-server
+
+```text
+127.0.0.1:6379> client list
+id=3 addr=172.22.0.4:37174 fd=9 name= age=1621 idle=1621 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=0 obl=0 oll=0 omem=0 events=r cmd=get
+id=4 addr=172.22.0.5:44918 fd=10 name= age=1051 idle=1051 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=0 obl=0 oll=0 omem=0 events=r cmd=get
+id=5 addr=127.0.0.1:41110 fd=11 name= age=79 idle=0 flags=N db=0 sub=0 psub=0 multi=-1 qbuf=0 qbuf-free=32768 obl=0 oll=0 omem=0 events=r cmd=client
 ```
 
 # misc

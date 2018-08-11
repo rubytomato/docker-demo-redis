@@ -33,7 +33,6 @@ services:
     tty: true
 
   app-server:
-    container_name: app-server
     build:
       context: ./app-server
     environment:
@@ -45,7 +44,8 @@ services:
       - mysql-server
       - redis-server
     ports:
-      - 9000:9000
+#      - 9000:9000
+      - 9000-9001:9000
     networks:
       - redis-network
     restart: always
